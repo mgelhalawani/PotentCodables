@@ -354,8 +354,20 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
   }
 
   public static func valueToKeyedValues(_ value: CBOR, decoder: Decoder) throws -> [String: CBOR]? {
-    guard case .map(let map) = value else { return nil }
-    return try mapToKeyedValues(map, decoder: decoder)
+      if case .tagged = value {
+          switch value.untagged {
+          case .map(let map):
+              return try mapToKeyedValues(map, decoder: decoder)
+          case .null: return nil
+          case let cbor:
+              throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: Dictionary<String, Any>.self, reality: cbor)
+          }
+      } else if case .map(let map) = value {
+          return try mapToKeyedValues(map, decoder: decoder)
+          
+      } else {
+          return nil
+      }
   }
 
   public static func mapToKeyedValues(_ map: [CBOR: CBOR], decoder: Decoder) throws -> [String: CBOR] {
