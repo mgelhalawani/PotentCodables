@@ -6,7 +6,7 @@ packages:
 localPackages:
   - ../PotentCodables
 options:
-  bundleIdPrefix: io.outfoxx
+  bundleIdPrefix: com.bwa
 targets:
   PotentCodablesWrap:
     type: framework.static
