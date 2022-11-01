@@ -1,7 +1,7 @@
 name: PotentCodablesTest
 packages:
   PotentCodables:
-    url: https://github.com/outfoxx/PotentCodables.git
+    url: https://github.com/mgelhalawani/PotentCodables.git
     from: 0.0.0
 localPackages:
   - ../PotentCodables
@@ -25,7 +25,7 @@ targets:
     dependencies:
       - package: PotentCodables
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: io.outfoxx.PotentCodablesWrap
+      PRODUCT_BUNDLE_IDENTIFIER: com.bwa.PotentCodablesWrap
 
   PotentCodablesTests:
     type: bundle.unit-test

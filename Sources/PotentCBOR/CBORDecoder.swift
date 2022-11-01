@@ -360,11 +360,10 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
               return try mapToKeyedValues(map, decoder: decoder)
           case .null: return nil
           case let cbor:
-              throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: Dictionary<String, Any>.self, reality: cbor)
+              throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: Dictionary<String, CBOR>.self, reality: cbor)
           }
       } else if case .map(let map) = value {
           return try mapToKeyedValues(map, decoder: decoder)
-          
       } else {
           return nil
       }
