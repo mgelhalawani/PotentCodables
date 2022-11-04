@@ -20,17 +20,19 @@ public class CBORDecoder: ValueDecoder<CBOR, CBORDecoderTransform>, DecodesFromD
   ///
   /// - Important: The strategy is only used when untagged numeric values are decoded as
   ///  dates, properly tagged date values are decoded according to the CBOR specification
-  public enum UntaggedDateDecodingStrategy {
-    /// Decode float point values as UNIX timestamp with second precision and decode
-    /// integer values as a UNIX timestamp with millisecond precision.
-    case unitsSince1970
-
-    /// Decode any numeric values as a UNIX timestamp with second precision.
-    case secondsSince1970
-
-    /// Decode any numeric values as a UNIX timestamp with millisecond precision.
-    case millisecondsSince1970
-  }
+    public enum UntaggedDateDecodingStrategy {
+        /// Decode float point values as UNIX timestamp with second precision and decode
+        /// integer values as a UNIX timestamp with millisecond precision.
+        case unitsSince1970
+        
+        /// Decode any numeric values as a UNIX timestamp with second precision.
+        case secondsSince1970
+        
+        /// Decode any numeric values as a UNIX timestamp with millisecond precision.
+        case millisecondsSince1970
+        
+        case tdate
+    }
 
   /// The strategy used in decoding of untagged numeric values as `Date`. Defaults to `.unitsSince1970`.
   public var untaggedDateDecodingStrategy: UntaggedDateDecodingStrategy = .unitsSince1970
@@ -287,7 +289,7 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
 
   public static func unbox(_ value: CBOR, as type: Date.Type, decoder: Decoder) throws -> Date? {
 
-    func decodeUntaggedNumericDate(from value: Double, unitsPerSeconds: Double) -> Date {
+    func decodeUntaggedNumericDate(from value: Double, unitsPerSeconds: Double) throws -> Date {
       switch decoder.options.untaggedDateDecodingStrategy {
       case .unitsSince1970:
         return Date(timeIntervalSince1970: Double(value) * unitsPerSeconds)
@@ -295,6 +297,7 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
         return Date(timeIntervalSince1970: Double(value) / 1000.0)
       case .secondsSince1970:
         return Date(timeIntervalSince1970: Double(value))
+      case .tdate: throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: type, reality: Double.self)
       }
     }
 
@@ -303,15 +306,15 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
     case .utf8String(let string):
       return _iso8601Formatter.date(from: string)?.utcDate
     case .double(let double):
-      return decodeUntaggedNumericDate(from: double, unitsPerSeconds: 1.0)
+      return try decodeUntaggedNumericDate(from: double, unitsPerSeconds: 1.0)
     case .float(let float):
-      return decodeUntaggedNumericDate(from: Double(float), unitsPerSeconds: 1.0)
+      return try decodeUntaggedNumericDate(from: Double(float), unitsPerSeconds: 1.0)
     case .half(let half):
-      return decodeUntaggedNumericDate(from: Double(half.floatValue), unitsPerSeconds: 1.0)
+      return try decodeUntaggedNumericDate(from: Double(half.floatValue), unitsPerSeconds: 1.0)
     case .unsignedInt(let uint):
-      return decodeUntaggedNumericDate(from: Double(uint), unitsPerSeconds: 1000.0)
+      return try decodeUntaggedNumericDate(from: Double(uint), unitsPerSeconds: 1000.0)
     case .negativeInt(let nint):
-      return decodeUntaggedNumericDate(from: Double(-1 - Int(nint)), unitsPerSeconds: 1000.0)
+      return try decodeUntaggedNumericDate(from: Double(-1 - Int(nint)), unitsPerSeconds: 1000.0)
     case .tagged(.iso8601DateTime, let tagged):
       guard case .utf8String(let string) = tagged else {
         throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: type, reality: tagged)
@@ -328,6 +331,11 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
         throw DecodingError.dataCorruptedError(in: decoder, debugDescription: "Invalid Numeric Date/Time")
       }
       return Date(timeIntervalSince1970: seconds)
+    case .tagged(.tdate, let tagged):
+        guard case .tdate(let string) = tagged else {
+            throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: String.self, reality: tagged)
+        }
+        return tdateFormatter.date(from: string)
     case let cbor:
       throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: type, reality: cbor)
     }
@@ -397,6 +405,11 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
 
 private let _iso8601Formatter = SuffixedDateFormatter.optionalFractionalSeconds(basePattern: "yyyy-MM-dd'T'HH:mm:ss")
 
+private let tdateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return formatter
+}()
 
 #if canImport(Combine)
 

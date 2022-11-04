@@ -43,20 +43,21 @@ public indirect enum CBOR: Equatable, Hashable {
     }
   }
 
-  case unsignedInt(UInt64)
-  case negativeInt(UInt64)
-  case byteString(Data)
-  case utf8String(String)
-  case array([CBOR])
-  case map([CBOR: CBOR])
-  case tagged(Tag, CBOR)
-  case simple(UInt8)
-  case boolean(Bool)
-  case null
-  case undefined
-  case half(Float16)
-  case float(Float32)
-  case double(Float64)
+    case unsignedInt(UInt64)
+    case negativeInt(UInt64)
+    case byteString(Data)
+    case utf8String(String)
+    case array([CBOR])
+    case map([CBOR: CBOR])
+    case tagged(Tag, CBOR)
+    case simple(UInt8)
+    case boolean(Bool)
+    case null
+    case undefined
+    case half(Float16)
+    case float(Float32)
+    case double(Float64)
+    case tdate(String)
 
   public var isNull: Bool {
     if case .null = self { return true }
@@ -313,6 +314,7 @@ extension CBOR: Value {
         (key.unwrapped as? AnyHashable, value.unwrapped)
       })
     case .tagged(_, let value): return value.unwrapped
+    case .tdate(let value): return value
     }
   }
 

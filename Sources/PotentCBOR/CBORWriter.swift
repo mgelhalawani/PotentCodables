@@ -46,6 +46,7 @@ public struct CBORWriter {
     case .half(let half): try encodeHalf(half)
     case .float(let float): try encodeFloat(float)
     case .double(let double): try encodeDouble(double)
+    case .tdate(let string): try encodeString(string)
     }
   }
 
