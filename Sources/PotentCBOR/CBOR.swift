@@ -261,32 +261,36 @@ extension CBOR: ExpressibleByNilLiteral, ExpressibleByIntegerLiteral, Expressibl
 }
 
 public extension CBOR.Tag {
-  static let iso8601DateTime = CBOR.Tag(rawValue: 0)
-  static let epochDateTime = CBOR.Tag(rawValue: 1)
-  static let positiveBignum = CBOR.Tag(rawValue: 2)
-  static let negativeBignum = CBOR.Tag(rawValue: 3)
-  static let decimalFraction = CBOR.Tag(rawValue: 4)
-  static let bigfloat = CBOR.Tag(rawValue: 5)
-
-  // 6...20 unassigned
-
-  static let expectedConversionToBase64URLEncoding = CBOR.Tag(rawValue: 21)
-  static let expectedConversionToBase64Encoding = CBOR.Tag(rawValue: 22)
-  static let expectedConversionToBase16Encoding = CBOR.Tag(rawValue: 23)
-  static let encodedCBORDataItem = CBOR.Tag(rawValue: 24)
-
-  // 25...31 unassigned
-
-  static let uri = CBOR.Tag(rawValue: 32)
-  static let base64Url = CBOR.Tag(rawValue: 33)
-  static let base64 = CBOR.Tag(rawValue: 34)
-  static let regularExpression = CBOR.Tag(rawValue: 35)
-  static let mimeMessage = CBOR.Tag(rawValue: 36)
-  static let uuid = CBOR.Tag(rawValue: 37)
-
-  // 38...55798 unassigned
-
-  static let selfDescribeCBOR = CBOR.Tag(rawValue: 55799)
+    static let iso8601DateTime = CBOR.Tag(rawValue: 0)
+    static let epochDateTime = CBOR.Tag(rawValue: 1)
+    static let positiveBignum = CBOR.Tag(rawValue: 2)
+    static let negativeBignum = CBOR.Tag(rawValue: 3)
+    static let decimalFraction = CBOR.Tag(rawValue: 4)
+    static let bigfloat = CBOR.Tag(rawValue: 5)
+    
+    // 6...20 unassigned
+    
+    static let expectedConversionToBase64URLEncoding = CBOR.Tag(rawValue: 21)
+    static let expectedConversionToBase64Encoding = CBOR.Tag(rawValue: 22)
+    static let expectedConversionToBase16Encoding = CBOR.Tag(rawValue: 23)
+    static let encodedCBORDataItem = CBOR.Tag(rawValue: 24)
+    
+    // 25...31 unassigned
+    
+    static let uri = CBOR.Tag(rawValue: 32)
+    static let base64Url = CBOR.Tag(rawValue: 33)
+    static let base64 = CBOR.Tag(rawValue: 34)
+    static let regularExpression = CBOR.Tag(rawValue: 35)
+    static let mimeMessage = CBOR.Tag(rawValue: 36)
+    static let uuid = CBOR.Tag(rawValue: 37)
+    
+    // 38...1003 unassigned
+    
+    static let tdate = CBOR.Tag(rawValue: 1004)
+    
+    // 1005...55798 unassigned
+    
+    static let selfDescribeCBOR = CBOR.Tag(rawValue: 55799)
 }
 
 extension CBOR: Value {

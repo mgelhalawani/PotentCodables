@@ -17,17 +17,19 @@ import PotentCodables
 public class CBOREncoder: ValueEncoder<CBOR, CBOREncoderTransform>, EncodesToData {
   // MARK: Options
 
-  /// The strategy to use for encoding `Date` values.
-  public enum DateEncodingStrategy {
-    /// Encode the `Date` as a UNIX timestamp (floating point seconds since epoch).
-    case secondsSince1970
-
-    /// Encode the `Date` as UNIX millisecond timestamp (integer milliseconds since epoch).
-    case millisecondsSince1970
-
-    /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format).
-    case iso8601
-  }
+    /// The strategy to use for encoding `Date` values.
+    public enum DateEncodingStrategy {
+        /// Encode the `Date` as a UNIX timestamp (floating point seconds since epoch).
+        case secondsSince1970
+        
+        /// Encode the `Date` as UNIX millisecond timestamp (integer milliseconds since epoch).
+        case millisecondsSince1970
+        
+        /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format).
+        case iso8601
+        
+        case tdate
+    }
 
   /// The strategy to use in encoding dates. Defaults to `.iso8601`.
   open var dateEncodingStrategy: DateEncodingStrategy = .iso8601
@@ -101,6 +103,7 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
     case .iso8601: return .tagged(.iso8601DateTime, .utf8String(_iso8601Formatter.string(from: value)))
     case .secondsSince1970: return .tagged(.epochDateTime, CBOR(value.timeIntervalSince1970))
     case .millisecondsSince1970: return .tagged(.epochDateTime, CBOR(Int64(value.timeIntervalSince1970 * 1000.0)))
+    case .tdate: return .tagged(.tdate, .utf8String(tdateFormatter.string(from: value)))
     }
   }
 
@@ -115,7 +118,6 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
   public static func data(from value: CBOR, options: Options) throws -> Data {
     return try CBORSerialization.data(with: value)
   }
-
 }
 
 
@@ -126,6 +128,12 @@ private let _iso8601Formatter: DateFormatter = {
   formatter.timeZone = TimeZone(secondsFromGMT: 0)
   formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
   return formatter
+}()
+
+private let tdateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return formatter
 }()
 
 
