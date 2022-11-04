@@ -12,7 +12,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "CustomPotentCodables",
+  name: "PotentCodables",
   platforms: [
     .iOS(.v10),
     .macOS(.v10_12),
