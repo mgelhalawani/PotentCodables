@@ -332,7 +332,7 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
       }
       return Date(timeIntervalSince1970: seconds)
     case .tagged(.tdate, let tagged):
-        guard case .tdate(let string) = tagged else {
+        guard case .utf8String(let string) = tagged else {
             throw DecodingError.typeMismatch(at: decoder.codingPath, expectation: String.self, reality: tagged)
         }
         return tdateFormatter.date(from: string)
