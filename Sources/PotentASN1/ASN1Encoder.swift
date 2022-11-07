@@ -46,102 +46,104 @@ public class ASN1Encoder: ValueEncoder<ASN1, ASN1EncoderTransform>, EncodesToDat
 
 
 public struct ASN1EncoderTransform: InternalEncoderTransform, InternalValueSerializer {
-
-  public typealias Value = ASN1
-  public typealias Encoder = InternalValueEncoder<Value, Self>
-
-  public struct Options: InternalEncoderOptions {
-    public var schema: Schema
-    public let keyEncodingStrategy: KeyEncodingStrategy
-    public let userInfo: [CodingUserInfoKey: Any]
-  }
-
-  public typealias State = SchemaState
-
-  public static var emptyKeyedContainer = ASN1.sequence([])
-  public static var emptyUnkeyedContainer = ASN1.sequence([])
-
-  static func encode(_ value: Any?, encoder: Encoder) throws -> ASN1 {
-//    print("codingPath =", encoder.codingPath.map { $0.stringValue })
-//    print("containers =", encoder.containerTypes, "\n\n")
-
-    if encoder.state == nil {
-      encoder.state = try SchemaState(initial: encoder.options.schema)
+    
+    public typealias Value = ASN1
+    public typealias Encoder = InternalValueEncoder<Value, Self>
+    
+    public struct Options: InternalEncoderOptions {
+        public var schema: Schema
+        public let keyEncodingStrategy: KeyEncodingStrategy
+        public let userInfo: [CodingUserInfoKey: Any]
     }
-
-    let keep = zip(encoder.state.keyStack, encoder.codingPath).prefix { $0.0.stringValue == $0.1.stringValue }.count
-
-    let drop = encoder.state.count - keep
-    encoder.state.removeLast(count: drop)
-
-    for key in encoder.codingPath[encoder.state.count...] {
-      try encoder.state.step(into: encoder.container(depth: encoder.state.count), key: key)
+    
+    public typealias State = SchemaState
+    
+    public static var emptyKeyedContainer = ASN1.sequence([])
+    public static var emptyUnkeyedContainer = ASN1.sequence([])
+    
+    static func encode(_ value: Any?, encoder: Encoder) throws -> ASN1 {
+        //    print("codingPath =", encoder.codingPath.map { $0.stringValue })
+        //    print("containers =", encoder.containerTypes, "\n\n")
+        
+        if encoder.state == nil {
+            encoder.state = try SchemaState(initial: encoder.options.schema)
+        }
+        
+        let keep = zip(encoder.state.keyStack, encoder.codingPath).prefix { $0.0.stringValue == $0.1.stringValue }.count
+        
+        let drop = encoder.state.count - keep
+        encoder.state.removeLast(count: drop)
+        
+        for key in encoder.codingPath[encoder.state.count...] {
+            try encoder.state.step(into: encoder.container(depth: encoder.state.count), key: key)
+        }
+        
+        return try encoder.state.encode(value)
     }
-
-    return try encoder.state.encode(value)
-  }
-
-  public static func boxNil(encoder: Encoder) throws -> ASN1 { try encode(nil, encoder: encoder) }
-  public static func box(_ value: Bool, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Int, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Int8, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Int16, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Int32, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Int64, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UInt, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UInt8, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UInt16, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UInt32, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UInt64, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: String, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: URL, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: UUID, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Float, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Double, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Decimal, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Data, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-  public static func box(_ value: Date, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-
-  public static func intercepts(_ type: Encodable.Type) -> Bool {
-    return
-      type == ASN1.self || type is TaggedValue.Type ||
-      type == AnyString.self || type == AnyTime.self ||
-      type == BitString.self || type == ObjectIdentifier.self || type == BigInt.self
-  }
-
-  public static func box(_ value: Any, interceptedType: Encodable.Type, encoder: Encoder) throws -> ASN1 {
-
-    if let value = value as? ASN1 {
-      return value
+    
+    public static func boxNil(encoder: Encoder) throws -> ASN1 { try encode(nil, encoder: encoder) }
+    public static func box(_ value: Bool, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Int, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Int8, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Int16, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Int32, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Int64, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UInt, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UInt8, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UInt16, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UInt32, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UInt64, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: String, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: URL, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: UUID, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Float, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Double, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Decimal, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Data, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func box(_ value: Date, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
+    public static func boxDataItem(_ value: Any, encoder: PotentCodables.InternalValueEncoder<ASN1, ASN1EncoderTransform>) throws -> ASN1 {
+        throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unimplemented function"))
     }
-
-    return try encode(value, encoder: encoder)
-  }
-
-  public static func unkeyedValuesToValue(_ values: [ASN1], encoder: Encoder) throws -> ASN1 {
-
-    return try encode(values, encoder: encoder)
-  }
-
-  public static func keyedValuesToValue(_ values: [String: ASN1], encoder: Encoder) throws -> ASN1 {
-
-    return try encode(values, encoder: encoder)
-  }
-
-  public static func data(from value: ASN1, options: Options) throws -> Data {
-    return try ASN1Serialization.der(from: value)
-  }
-
-  private static func doubleFrom(_ decimal: Decimal, _ encoder: Encoder) throws -> Double {
-    guard let value = Double(decimal.description) else {
-      throw Swift.EncodingError.invalidValue(decimal, .init(
-        codingPath: encoder.codingPath,
-        debugDescription: ""
-      ))
+    
+    public static func intercepts(_ type: Encodable.Type) -> Bool {
+        return
+        type == ASN1.self || type is TaggedValue.Type ||
+        type == AnyString.self || type == AnyTime.self ||
+        type == BitString.self || type == ObjectIdentifier.self || type == BigInt.self
     }
-    return value
-  }
-
+    
+    public static func box(_ value: Any, interceptedType: Encodable.Type, encoder: Encoder) throws -> ASN1 {
+        
+        if let value = value as? ASN1 {
+            return value
+        }
+        
+        return try encode(value, encoder: encoder)
+    }
+    
+    public static func unkeyedValuesToValue(_ values: [ASN1], encoder: Encoder) throws -> ASN1 {
+        
+        return try encode(values, encoder: encoder)
+    }
+    
+    public static func keyedValuesToValue(_ values: [String: ASN1], encoder: Encoder) throws -> ASN1 {
+        
+        return try encode(values, encoder: encoder)
+    }
+    
+    public static func data(from value: ASN1, options: Options) throws -> Data {
+        return try ASN1Serialization.der(from: value)
+    }
+    
+    private static func doubleFrom(_ decimal: Decimal, _ encoder: Encoder) throws -> Double {
+        guard let value = Double(decimal.description) else {
+            throw Swift.EncodingError.invalidValue(decimal, .init(
+                codingPath: encoder.codingPath,
+                debugDescription: ""
+            ))
+        }
+        return value
+    }
 }
 
 

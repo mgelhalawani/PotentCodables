@@ -53,26 +53,27 @@ public protocol InternalEncoderTransform {
   static var emptyKeyedContainer: Value { get }
   static var emptyUnkeyedContainer: Value { get }
 
-  static func boxNil(encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Bool, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Int, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Int8, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Int16, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Int32, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Int64, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UInt, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UInt8, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UInt16, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UInt32, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UInt64, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: String, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Float, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Double, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Decimal, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Data, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: URL, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: UUID, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func box(_ value: Date, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func boxNil(encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Bool, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Int, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Int8, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Int16, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Int32, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Int64, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UInt, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UInt8, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UInt16, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UInt32, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UInt64, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: String, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Float, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Double, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Decimal, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Data, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: URL, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: UUID, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func box(_ value: Date, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func boxDataItem(_ value: Any, encoder: InternalValueEncoder<Value, Self>) throws -> Value
 
   static func intercepts(_ type: Encodable.Type) -> Bool
   static func box(_ value: Any, interceptedType: Encodable.Type, encoder: InternalValueEncoder<Value, Self>) throws
@@ -551,6 +552,12 @@ private struct ValueKeyedEncodingContainer<K: CodingKey, Value, Transform>: Keye
     defer { self.encoder.codingPath.removeLast() }
     container[converted(key).stringValue] = try encoder.box(value)
   }
+    
+    public mutating func encodeDataItem<T: Encodable>(_ value: T, forKey key: Key) throws {
+      encoder.codingPath.append(key)
+      defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.boxDataItem(value)
+    }
 
   public mutating func nestedContainer<NestedKey>(
     keyedBy keyType: NestedKey.Type,
@@ -801,28 +808,29 @@ extension InternalValueEncoder: SingleValueEncodingContainer {
 // MARK: - Concrete Value Representations
 
 private extension InternalValueEncoder {
-
-  /// Returns the given value boxed in a container appropriate for pushing onto the container stack.
-  func boxNil() throws -> Value { return try Transform.boxNil(encoder: self) }
-  func box(_ value: Bool) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Int) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Int8) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Int16) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Int32) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Int64) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UInt) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UInt8) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UInt16) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UInt32) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UInt64) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: String) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Float) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Double) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Decimal) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Data) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: URL) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: UUID) throws -> Value { return try Transform.box(value, encoder: self) }
-  func box(_ value: Date) throws -> Value { return try Transform.box(value, encoder: self) }
+    
+    /// Returns the given value boxed in a container appropriate for pushing onto the container stack.
+    func boxNil() throws -> Value { return try Transform.boxNil(encoder: self) }
+    func box(_ value: Bool) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Int) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Int8) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Int16) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Int32) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Int64) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UInt) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UInt8) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UInt16) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UInt32) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UInt64) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: String) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Float) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Double) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Decimal) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Data) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: URL) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: UUID) throws -> Value { return try Transform.box(value, encoder: self) }
+    func box(_ value: Date) throws -> Value { return try Transform.box(value, encoder: self) }
+    func boxDataItem(_ value: Any) throws -> Value { return try Transform.boxDataItem(value, encoder: self) }
 
   func box(_ dict: [String: Encodable]) throws -> Value? {
 
