@@ -549,7 +549,7 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
     
     public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
         if value is DataItem {
-            try encodeDataItem(value, forKey: key)
+            try encode(value, forKey: key)
         } else {
             encoder.codingPath.append(key)
             defer { self.encoder.codingPath.removeLast() }
@@ -557,7 +557,7 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
         }
     }
     
-    public mutating func encodeDataItem<T: Encodable>(_ value: T, forKey key: Key) throws {
+    public mutating func encode<T: DataItem>(_ value: T, forKey key: Key) throws {
         encoder.codingPath.append(key)
         defer { self.encoder.codingPath.removeLast() }
         container[converted(key).stringValue] = try encoder.boxDataItem(value)
@@ -1099,4 +1099,7 @@ public extension InternalEncoderTransform {
 
 }
 
-public  protocol DataItem {}
+public protocol DataItem {
+    var tag: Int { get set }
+    var value: Any { get set }
+}
