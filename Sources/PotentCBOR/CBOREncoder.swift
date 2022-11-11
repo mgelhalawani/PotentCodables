@@ -151,6 +151,6 @@ private let tdateFormatter: DateFormatter = {
 
 #endif
 
-extension KeyedEncodingContainerProtocol {
+public extension KeyedEncodingContainerProtocol {
     mutating func encode(_ value: Bool, withTag: Int, forKey key: Self.Key) throws { fatalError("Unimplemented")}
 }
