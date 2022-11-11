@@ -548,19 +548,9 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
     }
     
     public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-        if value is DataItem {
-            try encode(value, forKey: key)
-        } else {
-            encoder.codingPath.append(key)
-            defer { self.encoder.codingPath.removeLast() }
-            container[converted(key).stringValue] = try encoder.box(value)
-        }
-    }
-    
-    public mutating func encode<T: DataItem>(_ value: T, forKey key: Key) throws {
         encoder.codingPath.append(key)
         defer { self.encoder.codingPath.removeLast() }
-        container[converted(key).stringValue] = try encoder.boxDataItem(value)
+        container[converted(key).stringValue] = try encoder.box(value)
     }
     
     public mutating func nestedContainer<NestedKey>(
@@ -1097,9 +1087,4 @@ public extension InternalEncoderTransform {
     return try encoder.subEncode { encoder in try (value as! Encodable).encode(to: encoder) }
   }
 
-}
-
-public protocol DataItem {
-    var tag: Int { get set }
-    var value: Any { get set }
 }

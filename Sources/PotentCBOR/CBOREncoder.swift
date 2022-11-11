@@ -79,15 +79,9 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
     public static func box(_ value: String, encoder: Encoder) throws -> CBOR { return CBOR(value) }
     public static func box(_ value: Float, encoder: Encoder) throws -> CBOR { return CBOR(value) }
     public static func box(_ value: Double, encoder: Encoder) throws -> CBOR { return CBOR(value) }
-    public static func box(
-        _ value: Decimal,
-        encoder: Encoder
-    ) throws -> CBOR { return CBOR((value as NSDecimalNumber).doubleValue) }
+    public static func box(_ value: Decimal, encoder: Encoder) throws -> CBOR { return CBOR((value as NSDecimalNumber).doubleValue) }
     public static func box(_ value: Data, encoder: Encoder) throws -> CBOR { return CBOR(value) }
-    public static func box(
-        _ value: URL,
-        encoder: Encoder
-    ) throws -> CBOR { return .tagged(.uri, .utf8String(value.absoluteString)) }
+    public static func box(_ value: URL, encoder: Encoder) throws -> CBOR { return .tagged(.uri, .utf8String(value.absoluteString)) }
     
     public static func box(_ value: UUID, encoder: Encoder) throws -> CBOR {
         return withUnsafeBytes(of: value) { ptr in
@@ -156,3 +150,7 @@ private let tdateFormatter: DateFormatter = {
   }
 
 #endif
+
+extension KeyedEncodingContainerProtocol {
+    mutating func encode(_ value: Bool, withTag: Int, forKey key: Self.Key) throws { fatalError("Unimplemented")}
+}
