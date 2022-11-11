@@ -412,204 +412,208 @@ private struct ValueEncodingStorage<Value, Transform> where Transform: InternalE
 // MARK: - Encoding Containers
 
 private struct ValueKeyedEncodingContainer<K: CodingKey, Value, Transform>: KeyedEncodingContainerProtocol
-  where Transform: InternalEncoderTransform, Value == Transform.Value {
-  typealias Key = K
-  typealias InternalValueEncoder = PotentCodables.InternalValueEncoder<Value, Transform>
-
-  // MARK: Properties
-
-  /// A reference to the encoder we're writing to.
-  private let encoder: InternalValueEncoder
-
-  /// A reference to the container we're writing to.
-  private var container: KeyedContainer
-
-  /// The path of coding keys taken to get to this point in encoding.
-  public private(set) var codingPath: [CodingKey]
-
-  // MARK: - Initialization
-
-  /// Initializes `self` with the given references.
-  fileprivate init(
-    referencing encoder: InternalValueEncoder,
-    codingPath: [CodingKey],
-    wrapping container: KeyedContainer
-  ) {
-    self.encoder = encoder
-    self.codingPath = codingPath
-    self.container = container
-  }
-
-  // MARK: - Coding Path Operations
-
-  private func converted(_ key: CodingKey) -> CodingKey {
-    switch encoder.options.keyEncodingStrategy {
-
-    case .useDefaultKeys:
-      return key
-    case .convertToSnakeCase:
-      let newKeyString = KeyEncodingStrategy.convertToSnakeCase(key.stringValue)
-      return AnyCodingKey(stringValue: newKeyString, intValue: key.intValue)
-    case .custom(let converter):
-      return converter(codingPath + [key])
+where Transform: InternalEncoderTransform, Value == Transform.Value {
+    typealias Key = K
+    typealias InternalValueEncoder = PotentCodables.InternalValueEncoder<Value, Transform>
+    
+    // MARK: Properties
+    
+    /// A reference to the encoder we're writing to.
+    private let encoder: InternalValueEncoder
+    
+    /// A reference to the container we're writing to.
+    private var container: KeyedContainer
+    
+    /// The path of coding keys taken to get to this point in encoding.
+    public private(set) var codingPath: [CodingKey]
+    
+    // MARK: - Initialization
+    
+    /// Initializes `self` with the given references.
+    fileprivate init(
+        referencing encoder: InternalValueEncoder,
+        codingPath: [CodingKey],
+        wrapping container: KeyedContainer
+    ) {
+        self.encoder = encoder
+        self.codingPath = codingPath
+        self.container = container
     }
-  }
-
-  // MARK: - KeyedEncodingContainerProtocol Methods
-
-  public mutating func encodeNil(forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.boxNil()
-  }
-
-  public mutating func encode(_ value: Bool, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Int, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Int8, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Int16, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Int32, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Int64, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: UInt, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: UInt8, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: UInt16, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: UInt32, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: UInt64, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: String, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Float, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode(_ value: Double, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
-
-  public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-    encoder.codingPath.append(key)
-    defer { self.encoder.codingPath.removeLast() }
-    container[converted(key).stringValue] = try encoder.box(value)
-  }
+    
+    // MARK: - Coding Path Operations
+    
+    private func converted(_ key: CodingKey) -> CodingKey {
+        switch encoder.options.keyEncodingStrategy {
+            
+        case .useDefaultKeys:
+            return key
+        case .convertToSnakeCase:
+            let newKeyString = KeyEncodingStrategy.convertToSnakeCase(key.stringValue)
+            return AnyCodingKey(stringValue: newKeyString, intValue: key.intValue)
+        case .custom(let converter):
+            return converter(codingPath + [key])
+        }
+    }
+    
+    // MARK: - KeyedEncodingContainerProtocol Methods
+    
+    public mutating func encodeNil(forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.boxNil()
+    }
+    
+    public mutating func encode(_ value: Bool, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Int, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Int8, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Int16, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Int32, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Int64, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: UInt, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: UInt8, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: UInt16, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: UInt32, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: UInt64, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: String, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Float, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode(_ value: Double, forKey key: Key) throws {
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
+        container[converted(key).stringValue] = try encoder.box(value)
+    }
+    
+    public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
+        if value is DataItem {
+            try encodeDataItem(value, forKey: key)
+        } else {
+            encoder.codingPath.append(key)
+            defer { self.encoder.codingPath.removeLast() }
+            container[converted(key).stringValue] = try encoder.box(value)
+        }
+    }
     
     public mutating func encodeDataItem<T: Encodable>(_ value: T, forKey key: Key) throws {
-      encoder.codingPath.append(key)
-      defer { self.encoder.codingPath.removeLast() }
+        encoder.codingPath.append(key)
+        defer { self.encoder.codingPath.removeLast() }
         container[converted(key).stringValue] = try encoder.boxDataItem(value)
     }
-
-  public mutating func nestedContainer<NestedKey>(
-    keyedBy keyType: NestedKey.Type,
-    forKey key: Key
-  ) -> KeyedEncodingContainer<NestedKey> {
-
-    let nestedEncoder = ValueReferencingEncoder(
-      referencing: encoder,
-      key: key,
-      convertedKey: converted(key),
-      wrapping: container
-    )
-    let keyed = nestedEncoder.storage.pushKeyedContainer()
-
-    codingPath.append(key)
-    defer { self.codingPath.removeLast() }
-
-    let container = ValueKeyedEncodingContainer<NestedKey, Value, Transform>(
-      referencing: nestedEncoder,
-      codingPath: codingPath,
-      wrapping: keyed
-    )
-    return KeyedEncodingContainer(container)
-  }
-
-  public mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
-
-    let nestedEncoder = ValueReferencingEncoder(
-      referencing: encoder,
-      key: key,
-      convertedKey: converted(key),
-      wrapping: container
-    )
-    let unkeyed = nestedEncoder.storage.pushUnkeyedContainer()
-
-    codingPath.append(key)
-    defer { self.codingPath.removeLast() }
-    return ValueUnkeyedEncodingContainer(referencing: nestedEncoder, codingPath: codingPath, wrapping: unkeyed)
-  }
-
-  public mutating func superEncoder() -> Encoder {
-    return ValueReferencingEncoder(
-      referencing: encoder,
-      key: AnyCodingKey.super,
-      convertedKey: converted(AnyCodingKey.super),
-      wrapping: container
-    )
-  }
-
-  public mutating func superEncoder(forKey key: Key) -> Encoder {
-    return ValueReferencingEncoder(referencing: encoder, key: key, convertedKey: converted(key), wrapping: container)
-  }
+    
+    public mutating func nestedContainer<NestedKey>(
+        keyedBy keyType: NestedKey.Type,
+        forKey key: Key
+    ) -> KeyedEncodingContainer<NestedKey> {
+        
+        let nestedEncoder = ValueReferencingEncoder(
+            referencing: encoder,
+            key: key,
+            convertedKey: converted(key),
+            wrapping: container
+        )
+        let keyed = nestedEncoder.storage.pushKeyedContainer()
+        
+        codingPath.append(key)
+        defer { self.codingPath.removeLast() }
+        
+        let container = ValueKeyedEncodingContainer<NestedKey, Value, Transform>(
+            referencing: nestedEncoder,
+            codingPath: codingPath,
+            wrapping: keyed
+        )
+        return KeyedEncodingContainer(container)
+    }
+    
+    public mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
+        
+        let nestedEncoder = ValueReferencingEncoder(
+            referencing: encoder,
+            key: key,
+            convertedKey: converted(key),
+            wrapping: container
+        )
+        let unkeyed = nestedEncoder.storage.pushUnkeyedContainer()
+        
+        codingPath.append(key)
+        defer { self.codingPath.removeLast() }
+        return ValueUnkeyedEncodingContainer(referencing: nestedEncoder, codingPath: codingPath, wrapping: unkeyed)
+    }
+    
+    public mutating func superEncoder() -> Encoder {
+        return ValueReferencingEncoder(
+            referencing: encoder,
+            key: AnyCodingKey.super,
+            convertedKey: converted(AnyCodingKey.super),
+            wrapping: container
+        )
+    }
+    
+    public mutating func superEncoder(forKey key: Key) -> Encoder {
+        return ValueReferencingEncoder(referencing: encoder, key: key, convertedKey: converted(key), wrapping: container)
+    }
 }
 
 private struct ValueUnkeyedEncodingContainer<Value, Transform>: UnkeyedEncodingContainer
@@ -1094,3 +1098,7 @@ public extension InternalEncoderTransform {
   }
 
 }
+
+
+
+protocol DataItem {}
