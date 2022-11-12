@@ -45,14 +45,14 @@ public protocol InternalValueStringifier {
 /// Implementing this protocol is all that is required to translate `Encodable`
 /// values into a tree of `Value` instances.
 public protocol InternalEncoderTransform {
-
-  associatedtype Value: PotentCodables.Value
-  associatedtype Options: InternalEncoderOptions
-  associatedtype State
-
-  static var emptyKeyedContainer: Value { get }
-  static var emptyUnkeyedContainer: Value { get }
-
+    
+    associatedtype Value: PotentCodables.Value
+    associatedtype Options: InternalEncoderOptions
+    associatedtype State
+    
+    static var emptyKeyedContainer: Value { get }
+    static var emptyUnkeyedContainer: Value { get }
+    
     static func boxNil(encoder: InternalValueEncoder<Value, Self>) throws -> Value
     static func box(_ value: Bool, encoder: InternalValueEncoder<Value, Self>) throws -> Value
     static func box(_ value: Int, encoder: InternalValueEncoder<Value, Self>) throws -> Value
@@ -73,17 +73,17 @@ public protocol InternalEncoderTransform {
     static func box(_ value: URL, encoder: InternalValueEncoder<Value, Self>) throws -> Value
     static func box(_ value: UUID, encoder: InternalValueEncoder<Value, Self>) throws -> Value
     static func box(_ value: Date, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-    static func boxDataItem(_ value: Any, encoder: InternalValueEncoder<Value, Self>) throws -> Value
-
-  static func intercepts(_ type: Encodable.Type) -> Bool
-  static func box(_ value: Any, interceptedType: Encodable.Type, encoder: InternalValueEncoder<Value, Self>) throws
+    
+    static func box(_ value: Any, withTag tagValue: UInt64, encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    
+    static func intercepts(_ type: Encodable.Type) -> Bool
+    static func box(_ value: Any, interceptedType: Encodable.Type, encoder: InternalValueEncoder<Value, Self>) throws
     -> Value
-
-  static func box(_ value: Any, otherType: Encodable.Type, encoder: InternalValueEncoder<Value, Self>) throws -> Value?
-
-  static func unkeyedValuesToValue(_ values: [Value], encoder: InternalValueEncoder<Value, Self>) throws -> Value
-  static func keyedValuesToValue(_ values: [String: Value], encoder: InternalValueEncoder<Value, Self>) throws -> Value
-
+    
+    static func box(_ value: Any, otherType: Encodable.Type, encoder: InternalValueEncoder<Value, Self>) throws -> Value?
+    
+    static func unkeyedValuesToValue(_ values: [Value], encoder: InternalValueEncoder<Value, Self>) throws -> Value
+    static func keyedValuesToValue(_ values: [String: Value], encoder: InternalValueEncoder<Value, Self>) throws -> Value
 }
 
 
@@ -824,7 +824,7 @@ private extension InternalValueEncoder {
     func box(_ value: URL) throws -> Value { return try Transform.box(value, encoder: self) }
     func box(_ value: UUID) throws -> Value { return try Transform.box(value, encoder: self) }
     func box(_ value: Date) throws -> Value { return try Transform.box(value, encoder: self) }
-    func boxDataItem(_ value: Any) throws -> Value { return try Transform.boxDataItem(value, encoder: self) }
+    func box(_ value: Any, withTag tagValue: UInt64) throws -> Value { return try Transform.box(value, withTag: tagValue, encoder: self) }
 
   func box(_ dict: [String: Encodable]) throws -> Value? {
 

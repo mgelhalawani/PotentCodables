@@ -30,6 +30,7 @@ public class AnyValueEncoder: ValueEncoder<AnyValue, AnyValueEncoderTransform> {
 }
 
 public struct AnyValueEncoderTransform: InternalEncoderTransform {
+    
     public typealias Value = AnyValue
     public typealias State = Void
     
@@ -197,7 +198,7 @@ public struct AnyValueEncoderTransform: InternalEncoderTransform {
         return .date(value)
     }
     
-    public static func boxDataItem(_ value: Any, encoder: InternalValueEncoder<AnyValue, AnyValueEncoderTransform>) throws -> AnyValue {
+    public static func box(_ value: Any, withTag tagValue: UInt64, encoder: InternalValueEncoder<AnyValue, AnyValueEncoderTransform>) throws -> AnyValue {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unimplemented Function"))
     }
     

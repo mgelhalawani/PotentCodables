@@ -101,7 +101,8 @@ public struct ASN1EncoderTransform: InternalEncoderTransform, InternalValueSeria
     public static func box(_ value: Decimal, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
     public static func box(_ value: Data, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
     public static func box(_ value: Date, encoder: Encoder) throws -> ASN1 { try encode(value, encoder: encoder) }
-    public static func boxDataItem(_ value: Any, encoder: PotentCodables.InternalValueEncoder<ASN1, ASN1EncoderTransform>) throws -> ASN1 {
+    
+    public static func box(_ value: Any, withTag tagValue: UInt64, encoder: PotentCodables.InternalValueEncoder<ASN1, ASN1EncoderTransform>) throws -> ASN1 {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unimplemented function"))
     }
     

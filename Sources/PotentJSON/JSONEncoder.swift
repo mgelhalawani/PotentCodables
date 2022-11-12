@@ -293,7 +293,7 @@ public struct JSONEncoderTransform: InternalEncoderTransform, InternalValueSeria
         return try JSONSerialization.string(from: value, options: writingOptions)
     }
     
-    public static func boxDataItem(_ value: Any, encoder: PotentCodables.InternalValueEncoder<JSON, JSONEncoderTransform>) throws -> JSON {
+    public static func box(_ value: Any, withTag tagValue: UInt64, encoder: Encoder) throws -> JSON {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unimplemented Function"))
     }
 }

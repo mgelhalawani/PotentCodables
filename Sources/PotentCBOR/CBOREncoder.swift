@@ -99,17 +99,114 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
         }
     }
     
-    public static func boxDataItem(_ value: Any, encoder: PotentCodables.InternalValueEncoder<CBOR, CBOREncoderTransform>) throws -> CBOR {
+    public static func box(_ value: Any, withTag tagValue: UInt64, encoder: Encoder) throws -> CBOR {
+        
         let cbor: CBOR
         
         switch value {
+        case is Bool:
+            guard
+                let value = value as? Bool
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Bool"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Int:
+            guard
+                let value = value as? Int
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Int"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Int8:
+            guard
+                let value = value as? Int8
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Int8"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Int16:
+            guard
+                let value = value as? Int16
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Int16"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Int32:
+            guard
+                let value = value as? Int32
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Int32"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Int64:
+            guard
+                let value = value as? Int64
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to Int64"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is UInt:
+            guard
+                let value = value as? UInt
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is UInt8:
+            guard
+                let value = value as? UInt8
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt8"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is UInt16:
+            guard
+                let value = value as? UInt16
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt16")) }
+            cbor = try box(value, encoder: encoder)
+        case is UInt32:
+            guard
+                let value = value as? UInt32
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt32"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is UInt64:
+            guard
+                let value = value as? UInt64
+            else {
+                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt64"))
+            }
+            cbor = try box(value, encoder: encoder)
+        case is Float:
+            guard let value = value as? Float else { fatalError() }
+            cbor = try box(value, encoder: encoder)
+        case is Double:
+            guard let value = value as? Double else { fatalError() }
+            cbor = try box(value, encoder: encoder)
+        case is Decimal:
+            guard let value = value as? Decimal else { fatalError() }
+            cbor = try box(value, encoder: encoder)
         case is String:
-            cbor = try box(value as! String, encoder: encoder)
+            guard let value = value as? String else { fatalError() }
+            cbor = try box(value, encoder: encoder)
+        case is Data:
+            guard let value = value as? Data else { fatalError() }
+            cbor = try box(value, encoder: encoder)
+        case is URL:
+            guard let value = value as? URL else { fatalError() }
+            cbor = try box(value, encoder: encoder)
+        case is UUID:
+            guard let value = value as? UUID else { fatalError() }
+            cbor = try box(value, encoder: encoder)
         default:
-            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Worng value type"))
+            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Worng value data type"))
         }
         
-        return .tagged(.encodedCBORDataItem, cbor)
+        let tag = CBOR.Tag(rawValue: tagValue)
+        return .tagged(tag, cbor)
     }
     
     public static func unkeyedValuesToValue(_ values: [CBOR], encoder: Encoder) -> CBOR {
@@ -152,5 +249,5 @@ private let tdateFormatter: DateFormatter = {
 #endif
 
 public extension KeyedEncodingContainerProtocol {
-    mutating func encode(_ value: Bool, withTag: Int, forKey key: Self.Key) throws { fatalError("Unimplemented")}
+    mutating func encode(_ value: Any, withTag: Int, forKey key: Self.Key) throws { fatalError("Unimplemented") }
 }

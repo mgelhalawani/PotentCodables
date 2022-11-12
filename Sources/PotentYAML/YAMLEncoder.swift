@@ -116,10 +116,7 @@ public class YAMLEncoder: ValueEncoder<YAML, YAMLEncoderTransform>, EncodesToStr
 }
 
 public struct YAMLEncoderTransform: InternalEncoderTransform, InternalValueSerializer, InternalValueStringifier {
-    
-    
-    
-    
+     
     public typealias Value = YAML
     public typealias Encoder = InternalValueEncoder<Value, Self>
     public typealias State = Void
@@ -330,7 +327,7 @@ public struct YAMLEncoderTransform: InternalEncoderTransform, InternalValueSeria
         return try YAMLSerialization.string(from: value, options: writingOptions)
     }
     
-    public static func boxDataItem(_ value: Any, encoder: PotentCodables.InternalValueEncoder<YAML, YAMLEncoderTransform>) throws -> YAML {
+    public static func box(_ value: Any, withTag tagValue: UInt64, encoder: PotentCodables.InternalValueEncoder<YAML, YAMLEncoderTransform>) throws -> YAML {
         throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unimplemented Function"))
     }
 }
