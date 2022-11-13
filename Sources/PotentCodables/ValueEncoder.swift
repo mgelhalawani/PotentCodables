@@ -547,7 +547,7 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
         container[converted(key).stringValue] = try encoder.box(value)
     }
     
-    public mutating func encode(_ value: Any, withTag tag: UInt64, forKey key: Self.Key) throws {
+    public mutating func encode(_ value: Any, withTag tag: UInt64, forKey key: Self.Key) throws  {
         encoder.codingPath.append(key)
         defer { self.encoder.codingPath.removeLast() }
         container[converted(key).stringValue] = try encoder.box(value, withTag: tag)
