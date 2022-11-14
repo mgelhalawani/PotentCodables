@@ -409,6 +409,38 @@ private struct ValueEncodingStorage<Value, Transform> where Transform: InternalE
   }
 }
 
+/**
+ Wrapper object to encode items with tags
+ 
+ Not intended to be encoded itself, but rather
+ it provids the info needed info to tag an item
+
+**/
+
+public struct TagContainer: Codable {
+    let tag: UInt64?
+    let value: Any?
+    
+    public init(tag: UInt64, value: Any) {
+        self.tag = tag
+        self.value = value
+    }
+    
+    public init(from decoder: Decoder) throws {
+        self.tag = nil
+        self.value = nil
+    }
+    
+    public func encode(to encoder: Encoder) throws {/* not implemented */}
+}
+
+public extension KeyedEncodingContainerProtocol {
+    mutating func encode<T: Encodable>(_ value: T, withTag tag: UInt64, forKey key: Self.Key) throws {
+        let tag = TagContainer(tag: tag, value: value)
+        try encode(tag, forKey: key)
+    }
+}
+
 // MARK: - Encoding Containers
 
 private struct ValueKeyedEncodingContainer<K: CodingKey, Value, Transform>: KeyedEncodingContainerProtocol
@@ -547,16 +579,28 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
         container[converted(key).stringValue] = try encoder.box(value)
     }
     
-    public mutating func encode(_ value: Any, withTag tag: UInt64, forKey key: Self.Key) throws  {
+    public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
+        if let value = value as? TagContainer {
+            try encode(value, forKey: key)
+        } else {
+            encoder.codingPath.append(key)
+            defer { self.encoder.codingPath.removeLast() }
+            container[converted(key).stringValue] = try encoder.box(value)
+        }
+    }
+    
+    public mutating func encode(_ value: TagContainer, forKey key: Key) throws {
+        guard
+            let tag = value.tag,
+            let value = value.value
+        else {
+            let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Bool")
+            throw EncodingError.invalidValue(value, context)
+        }
+        
         encoder.codingPath.append(key)
         defer { self.encoder.codingPath.removeLast() }
         container[converted(key).stringValue] = try encoder.box(value, withTag: tag)
-    }
-    
-    public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
-        encoder.codingPath.append(key)
-        defer { self.encoder.codingPath.removeLast() }
-        container[converted(key).stringValue] = try encoder.box(value)
     }
     
     public mutating func nestedContainer<NestedKey>(
