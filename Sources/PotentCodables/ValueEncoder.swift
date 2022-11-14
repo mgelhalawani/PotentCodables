@@ -417,21 +417,21 @@ private struct ValueEncodingStorage<Value, Transform> where Transform: InternalE
 
 **/
 
-public struct TagContainer: Codable {
+private struct TagContainer: Codable {
     let tag: UInt64?
     let value: Any?
     
-    public init(tag: UInt64, value: Any) {
+    init(tag: UInt64, value: Any) {
         self.tag = tag
         self.value = value
     }
     
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         self.tag = nil
         self.value = nil
     }
     
-    public func encode(to encoder: Encoder) throws {/* not implemented */}
+    func encode(to encoder: Encoder) throws {/* not implemented */}
 }
 
 public extension KeyedEncodingContainerProtocol {
