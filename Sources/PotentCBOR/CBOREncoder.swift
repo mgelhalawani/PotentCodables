@@ -108,120 +108,149 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
             guard
                 let value = value as? Bool
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Bool"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Bool")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Int:
             guard
                 let value = value as? Int
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Int8:
             guard
                 let value = value as? Int8
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int8"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int8")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Int16:
             guard
                 let value = value as? Int16
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int16"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int16")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Int32:
             guard
                 let value = value as? Int32
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int32"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int32")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Int64:
             guard
                 let value = value as? Int64
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int64"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Int64")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is UInt:
             guard
                 let value = value as? UInt
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is UInt8:
             guard
                 let value = value as? UInt8
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt8"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value nit castable to UInt8")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is UInt16:
             guard
                 let value = value as? UInt16
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt16")) }
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt16")
+                throw EncodingError.invalidValue(value, context)
+            }
             cbor = try box(value, encoder: encoder)
         case is UInt32:
             guard
                 let value = value as? UInt32
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt32"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt32")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is UInt64:
             guard
                 let value = value as? UInt64
             else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt64"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UInt64")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Float:
             guard let value = value as? Float else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Float"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Float")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Double:
             guard let value = value as? Double else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Double"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Double")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Decimal:
             guard let value = value as? Decimal else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Decimal"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Decimal")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is String:
             guard let value = value as? String else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to String"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to String")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Data:
             guard let value = value as? Data else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Data"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Data")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is URL:
             guard let value = value as? URL else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to URL"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to URL")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is UUID:
             guard let value = value as? UUID else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UUID"))
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to UUID")
+                throw EncodingError.invalidValue(value, context)
             }
             cbor = try box(value, encoder: encoder)
         case is Encodable:
-            guard let value = value as? String else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Encodable"))
+            guard let value = value as? Encodable else {
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Encodable")
+                throw EncodingError.invalidValue(value, context)
             }
-            cbor = try box(value, encoder: encoder)
+
+            guard
+                let otherTypeCbor = try box(value, otherType: Swift.type(of: value), encoder: encoder)
+            else {
+                let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "non-encodable type")
+                throw EncodingError.invalidValue(value, context)
+            }
+            
+            cbor = otherTypeCbor
         default:
-            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Worng value data type"))
+            let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Worng value data type")
+            throw EncodingError.invalidValue(value, context)
         }
 
         let tag = CBOR.Tag(rawValue: tagValue)
