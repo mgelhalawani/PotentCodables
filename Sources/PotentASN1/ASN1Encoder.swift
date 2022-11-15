@@ -127,7 +127,7 @@ public struct ASN1EncoderTransform: InternalEncoderTransform, InternalValueSeria
         return try encode(values, encoder: encoder)
     }
     
-    public static func keyedValuesToValue(_ values: [String: ASN1], encoder: Encoder) throws -> ASN1 {
+    public static func keyedValuesToValue(_ values: [AnyHashable: ASN1], encoder: Encoder) throws -> ASN1 {
         
         return try encode(values, encoder: encoder)
     }

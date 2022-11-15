@@ -210,7 +210,7 @@ public struct AnyValueEncoderTransform: InternalEncoderTransform {
     }
     
     public static func keyedValuesToValue(
-        _ values: [String: AnyValue],
+        _ values: [AnyHashable: AnyValue],
         encoder: InternalValueEncoder<Value, Self>
     ) -> AnyValue {
         return .dictionary(values)

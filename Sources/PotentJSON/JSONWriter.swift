@@ -54,8 +54,9 @@ struct JSONWriter {
     }
   }
 
-  func serializeString(_ str: String) throws {
+  func serializeString(_ value: AnyHashable) throws {
     writer("\"")
+      guard let str = value as? String else { return }
     for scalar in str.unicodeScalars {
       switch scalar {
       case "\"":
@@ -121,7 +122,7 @@ struct JSONWriter {
     writer("]")
   }
 
-  mutating func serializeDictionary(_ dict: [String: JSON]) throws {
+  mutating func serializeDictionary(_ dict: [AnyHashable: JSON]) throws {
     writer("{")
     if pretty {
       writer("\n")
@@ -130,7 +131,7 @@ struct JSONWriter {
 
     var first = true
 
-    func serializeDictionaryElement(key: String, value: JSON) throws {
+    func serializeDictionaryElement(key: AnyHashable, value: JSON) throws {
       if first {
         first = false
       }
@@ -151,10 +152,20 @@ struct JSONWriter {
 
     if sortedKeys {
       let elems = dict.sorted(by: {
-        let options: String.CompareOptions = [.numeric, .caseInsensitive, .forcedOrdering]
-        let range: Range<String.Index> = $0.key.startIndex ..< $0.key.endIndex
-
-        return $0.key.compare($1.key, options: options, range: range, locale: NSLocale.system) == .orderedAscending
+          
+          if
+            let key0 = $0.key as? Int, let key1 = $1.key as? Int {
+              return key0 < key1
+          } else if let key0 = $0.key as? String, let key1 = $1.key as? String {
+              
+              let options: String.CompareOptions = [.numeric, .caseInsensitive, .forcedOrdering]
+              let range: Range<String.Index> = key0.startIndex ..< key1.endIndex
+              
+              return key0.compare(key1, options: options, range: range, locale: NSLocale.system) == .orderedAscending
+          } else {
+              return false
+          }
+          
       })
       for elem in elems {
         try serializeDictionaryElement(key: elem.key, value: elem.value)

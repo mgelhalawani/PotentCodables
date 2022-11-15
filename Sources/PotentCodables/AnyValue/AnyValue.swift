@@ -54,7 +54,7 @@ public enum AnyValue: Hashable {
   case uuid(UUID)
   case date(Date)
   case array([AnyValue])
-  case dictionary([String: AnyValue])
+  case dictionary([AnyHashable: AnyValue])
 
   /// Wraps the value into an equivalent `AnyValue` tree
   public static func wrapped(_ value: Any?) throws -> AnyValue {
@@ -138,7 +138,7 @@ public enum AnyValue: Hashable {
     return value
   }
 
-  public var dictionaryValue: [String: AnyValue]? {
+  public var dictionaryValue: [AnyHashable: AnyValue]? {
     guard case .dictionary(let value) = self else { return nil }
     return value
   }
@@ -468,6 +468,11 @@ extension AnyValue: Encodable {
 
 }
 
+extension AnyHashable : Encodable {
+    public func encode(to encoder: Encoder) throws {
+        fatalError("AnyValue.AnyHashable: unimplemented function")
+    }
+}
 
 /// Make encoders/decoders available in AnyValue namespace
 ///

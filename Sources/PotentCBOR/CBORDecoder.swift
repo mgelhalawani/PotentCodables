@@ -361,7 +361,7 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
     return array
   }
 
-  public static func valueToKeyedValues(_ value: CBOR, decoder: Decoder) throws -> [String: CBOR]? {
+  public static func valueToKeyedValues(_ value: CBOR, decoder: Decoder) throws -> [AnyHashable: CBOR]? {
       if case .tagged = value {
           switch value.untagged {
           case .map(let map):
@@ -377,12 +377,12 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
       }
   }
 
-  public static func mapToKeyedValues(_ map: [CBOR: CBOR], decoder: Decoder) throws -> [String: CBOR] {
+  public static func mapToKeyedValues(_ map: [CBOR: CBOR], decoder: Decoder) throws -> [AnyHashable: CBOR] {
     return try Dictionary(
       map.compactMap { key, value in
         switch key.untagged {
         case .utf8String(let str): return (str, value)
-        case .unsignedInt(let uint): return (String(uint), value)
+        case .unsignedInt(let uint): return (uint, value)
         case .negativeInt(let nint): return (String(-1 - Int(nint)), value)
         default: return nil
         }

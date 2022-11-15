@@ -267,7 +267,7 @@ public struct JSONEncoderTransform: InternalEncoderTransform, InternalValueSeria
         return .array(values)
     }
     
-    public static func keyedValuesToValue(_ values: [String: JSON], encoder: Encoder) -> JSON {
+    public static func keyedValuesToValue(_ values: [AnyHashable: JSON], encoder: Encoder) -> JSON {
         return .object(values)
     }
     

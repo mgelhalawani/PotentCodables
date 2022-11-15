@@ -80,7 +80,7 @@ public protocol InternalDecoderTransform {
     -> Any?
 
   static func valueToUnkeyedValues(_ value: Value, decoder: InternalValueDecoder<Value, Self>) throws -> [Value]?
-  static func valueToKeyedValues(_ value: Value, decoder: InternalValueDecoder<Value, Self>) throws -> [String: Value]?
+  static func valueToKeyedValues(_ value: Value, decoder: InternalValueDecoder<Value, Self>) throws -> [AnyHashable: Value]?
 
 }
 
@@ -379,7 +379,7 @@ private struct ValueKeyedDecodingContainer<K: CodingKey, Value, Transform>: Keye
   private let decoder: InternalValueDecoder
 
   /// A reference to the container we're reading from.
-  private let container: [String: Value]
+  private let container: [AnyHashable: Value]
 
   /// The path of coding keys taken to get to this point in decoding.
   public private(set) var codingPath: [CodingKey]
@@ -387,33 +387,55 @@ private struct ValueKeyedDecodingContainer<K: CodingKey, Value, Transform>: Keye
   // MARK: - Initialization
 
   /// Initializes `self` by referencing the given decoder and container.
-  fileprivate init(referencing decoder: InternalValueDecoder, wrapping container: [String: Value]) {
-    self.decoder = decoder
-    switch decoder.options.keyDecodingStrategy {
-    case .convertFromSnakeCase:
-      // Convert the snake case keys in the container to camel case.
-      // If we hit a duplicate key after conversion, then we'll use the first one we saw. Effectively an undefined behavior with dictionaries.
-      self.container = Dictionary(container.map {
-        (KeyDecodingStrategy.convertFromSnakeCase($0.key), $0.value)
-      }, uniquingKeysWith: { first, _ in first })
-    case .custom(let converter):
-      self.container = Dictionary(container.map { key, value in (
-          converter(decoder.codingPath + [AnyCodingKey(stringValue: key, intValue: nil)]).stringValue,
-          value
-        )
-      }, uniquingKeysWith: { first, _ in first })
-    case .useDefaultKeys:
-      fallthrough
-    @unknown default:
-      self.container = container
+    fileprivate init(referencing decoder: InternalValueDecoder, wrapping container: [AnyHashable: Value]) {
+        self.decoder = decoder
+        codingPath = decoder.codingPath
+        
+        if let _ = container.keys.first as? Int {
+            self.container = container
+        } else {
+            switch decoder.options.keyDecodingStrategy {
+            case .convertFromSnakeCase:
+                // Convert the snake case keys in the container to camel case.
+                // If we hit a duplicate key after conversion, then we'll use the first one we saw. Effectively an undefined behavior with dictionaries.
+                guard let container = container as? [String: Value] else {
+                    self.container = container
+                    return
+                }
+                self.container = Dictionary(container.map {
+                    (KeyDecodingStrategy.convertFromSnakeCase($0.key), $0.value)
+                }, uniquingKeysWith: { first, _ in first })
+            case .custom(let converter):
+                guard let container = container as? [String: Value] else {
+                    self.container = container
+                    return
+                }
+                self.container = Dictionary(container.map { key, value in (
+                    converter(decoder.codingPath + [AnyCodingKey(stringValue: key, intValue: nil)]).stringValue,
+                    value
+                )
+                }, uniquingKeysWith: { first, _ in first })
+            case .useDefaultKeys:
+                fallthrough
+            @unknown default:
+                self.container = container
+            }
+        }
+        
     }
-    codingPath = decoder.codingPath
-  }
 
   // MARK: - KeyedDecodingContainerProtocol Methods
 
   public var allKeys: [Key] {
-    return container.keys.compactMap { Key(stringValue: $0) }
+    return container.keys.compactMap {
+        if type(of: Key.self) == Int.self {
+            guard let value = $0 as? Int else { return  ValueKeyedDecodingContainer<K, Value, Transform>.Key(intValue: 0) }
+            return Key(intValue: value)
+        } else {
+            guard let value = $0 as? String else { return  ValueKeyedDecodingContainer<K, Value, Transform>.Key(stringValue: "") }
+            return Key(stringValue: value)
+        }
+    }
   }
 
   public func contains(_ key: Key) -> Bool {
@@ -465,20 +487,27 @@ private struct ValueKeyedDecodingContainer<K: CodingKey, Value, Transform>: Keye
     return entry.isNull
   }
 
-  internal func decode<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
-    guard let entry = container[key.stringValue] else {
-      throw notFoundError(key: key)
+    internal func decode<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+        
+        let entry: Value
+        
+        if let key = key.intValue, let element = container[key] {
+            entry = element
+        } else if let element = container[key.stringValue] {
+            entry = element
+        } else {
+            throw notFoundError(key: key)
+        }
+        
+        decoder.codingPath.append(key)
+        defer { self.decoder.codingPath.removeLast() }
+        
+        guard let value = try decoder.unbox(entry, as: type) else {
+            throw nullFoundError(type: type)
+        }
+        
+        return value
     }
-
-    decoder.codingPath.append(key)
-    defer { self.decoder.codingPath.removeLast() }
-
-    guard let value = try decoder.unbox(entry, as: type) else {
-      throw nullFoundError(type: type)
-    }
-
-    return value
-  }
 
   public func nestedContainer<NestedKey>(
     keyedBy type: NestedKey.Type,
@@ -1327,13 +1356,17 @@ private extension InternalValueDecoder {
   func unbox<T>(_ value: Value, as type: ValueStringDictionaryDecodableMarker.Type) throws -> T? {
     guard !value.isNull else { return nil }
 
-    var result = [String: Any]()
+    var result = [AnyHashable: Any]()
     guard let dict = try Transform.valueToKeyedValues(value, decoder: self) else {
       throw DecodingError.typeMismatch(at: codingPath, expectation: type, reality: value)
     }
     let elementType = type.elementType
     for (key, value) in dict {
-      codingPath.append(AnyCodingKey(stringValue: key, intValue: nil))
+        if let key = key as? String {
+            codingPath.append(AnyCodingKey(stringValue: key, intValue: nil))
+        } else if let key = key as? Int {
+            codingPath.append(AnyCodingKey(stringValue: String(key), intValue: key))
+        }
       defer { self.codingPath.removeLast() }
 
       result[key] = try unbox_(value, as: elementType)

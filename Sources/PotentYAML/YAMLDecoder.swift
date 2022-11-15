@@ -358,7 +358,7 @@ public struct YAMLDecoderTransform: InternalDecoderTransform, InternalValueDeser
     return sequence
   }
 
-  public static func valueToKeyedValues(_ value: YAML, decoder: Decoder) throws -> [String: YAML]? {
+  public static func valueToKeyedValues(_ value: YAML, decoder: Decoder) throws -> [AnyHashable: YAML]? {
     guard case .mapping(let mapping, _, _, _) = value else { return nil }
     return Dictionary(uniqueKeysWithValues: try mapping.map {
       guard let stringKey = $0.key.stringValue else {

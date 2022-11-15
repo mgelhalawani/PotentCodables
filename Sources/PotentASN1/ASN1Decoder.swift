@@ -436,7 +436,7 @@ public struct ASN1DecoderTransform: InternalDecoderTransform, InternalValueDeser
     return collection
   }
 
-  public static func valueToKeyedValues(_ value: ASN1, decoder: Decoder) throws -> [String: ASN1]? {
+  public static func valueToKeyedValues(_ value: ASN1, decoder: Decoder) throws -> [AnyHashable: ASN1]? {
 
     guard let decoded = try decode(value, decoder: decoder) else { return nil }
 

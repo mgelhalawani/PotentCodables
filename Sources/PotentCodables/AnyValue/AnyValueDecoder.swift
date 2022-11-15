@@ -30,6 +30,7 @@ public class AnyValueDecoder: ValueDecoder<AnyValue, AnyValueDecoderTransform> {
 }
 
 public struct AnyValueDecoderTransform: InternalDecoderTransform {
+    
 
   public typealias Value = AnyValue
   public typealias State = Void
@@ -229,7 +230,7 @@ public struct AnyValueDecoderTransform: InternalDecoderTransform {
   public static func valueToKeyedValues(
     _ value: AnyValue,
     decoder: InternalValueDecoder<AnyValue, AnyValueDecoderTransform>
-  ) throws -> [String: AnyValue]? {
+  ) throws -> [AnyHashable: AnyValue]? {
     guard case .dictionary(let dictionary) = value else { return nil }
     return dictionary
   }

@@ -106,7 +106,7 @@ public enum JSON {
   case number(Number)
   case bool(Bool)
   case array([JSON])
-  case object([String: JSON])
+  case object([AnyHashable: JSON])
 
   public var isNull: Bool {
     if case .null = self {
@@ -155,7 +155,7 @@ public enum JSON {
     return value
   }
 
-  public var objectValue: [String: JSON]? {
+  public var objectValue: [AnyHashable: JSON]? {
     guard case .object(let value) = self else { return nil }
     return value
   }

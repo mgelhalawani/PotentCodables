@@ -302,9 +302,15 @@ public struct YAMLEncoderTransform: InternalEncoderTransform, InternalValueSeria
         return .sequence(values, style: .any, tag: nil, anchor: nil)
     }
     
-    public static func keyedValuesToValue(_ values: [String: YAML], encoder: Encoder) -> YAML {
+    public static func keyedValuesToValue(_ values: [AnyHashable: YAML], encoder: Encoder) -> YAML {
         return .mapping(
-            values.map { .init(key: .string($0.key, style: .any, tag: nil, anchor: nil), value: $0.value) },
+            values.map {
+                if let key = $0.key as? Int {
+                    return .init(key: .string(String(key), style: .any, tag: nil, anchor: nil), value: $0.value)
+                } else {
+                    return .init(key: .string(String(describing: $0.key), style: .any, tag: nil, anchor: nil), value: $0.value)
+                }
+            },
             style: .any,
             tag: nil,
             anchor: nil
