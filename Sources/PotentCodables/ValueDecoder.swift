@@ -439,7 +439,7 @@ private struct ValueKeyedDecodingContainer<K: CodingKey, Value, Transform>: Keye
   }
 
   public func contains(_ key: Key) -> Bool {
-    return container[key.stringValue] != nil
+    return (container[key.intValue] != nil) || (container[key.stringValue] != nil)
   }
 
   internal func notFoundError(key: Key) -> DecodingError {
@@ -575,6 +575,94 @@ private struct ValueKeyedDecodingContainer<K: CodingKey, Value, Transform>: Keye
   public func superDecoder(forKey key: Key) throws -> Decoder {
     return try superDecoder(forKey: key as CodingKey)
   }
+}
+
+private extension ValueKeyedDecodingContainer {
+    
+    func decodeIfPresent(_ type: Int.Type, forKey key: K) throws -> Int? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Int8.Type, forKey key: K) throws -> Int8? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Int16.Type, forKey key: K) throws -> Int16? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Int32.Type, forKey key: K) throws -> Int32? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Int64.Type, forKey key: K) throws -> Int64? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UInt.Type, forKey key: K) throws -> UInt? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UInt8.Type, forKey key: K) throws -> UInt8? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UInt16.Type, forKey key: K) throws -> UInt16? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UInt32.Type, forKey key: K) throws -> UInt32? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UInt64.Type, forKey key: K) throws -> UInt64? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Float.Type, forKey key: K) throws -> Float? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Double.Type, forKey key: K) throws -> Double? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Bool.Type, forKey key: K) throws -> Bool? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: Date.Type, forKey key: K) throws -> Date? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: UUID.Type, forKey key: K) throws -> UUID? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent(_ type: String.Type, forKey key: K) throws -> String? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
+    
+    func decodeIfPresent<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T? {
+        guard contains(key) else { return nil }
+        return try decode(type, forKey: key)
+    }
 }
 
 private struct ValueUnkeyedDecodingContainer<Value, Transform>: UnkeyedDecodingContainer
