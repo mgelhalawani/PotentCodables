@@ -383,7 +383,7 @@ public struct CBORDecoderTransform: InternalDecoderTransform, InternalValueDeser
         switch key.untagged {
         case .utf8String(let str): return (str, value)
         case .unsignedInt(let uint): return (uint, value)
-        case .negativeInt(let nint): return (String(-1 - Int(nint)), value)
+        case .negativeInt(let nint): return (-1 - Int(nint), value)
         default: return nil
         }
       },
