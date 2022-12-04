@@ -263,8 +263,10 @@ public struct CBOREncoderTransform: InternalEncoderTransform, InternalValueSeria
     
     public static func keyedValuesToValue(_ values: [AnyHashable: CBOR], encoder: Encoder) -> CBOR {
         return .map(Dictionary(uniqueKeysWithValues: values.map { key, value in
-            if let key = key as? Int {
+            if let key = key as? UInt64 {
                 return (CBOR(UInt64(key)), value)
+            } else if let key = key as? Int {
+                return (CBOR(Int64(key)), value)
             } else {
                 return (CBOR(String(describing: key)), value)
             }
