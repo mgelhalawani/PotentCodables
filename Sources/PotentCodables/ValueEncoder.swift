@@ -417,7 +417,7 @@ private struct ValueEncodingStorage<Value, Transform> where Transform: InternalE
 
 **/
 
-private struct TagContainer: Codable {
+public  struct TagContainer: Codable {
     let tag: UInt64?
     let value: Any?
     
@@ -426,12 +426,12 @@ private struct TagContainer: Codable {
         self.value = value
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         self.tag = nil
         self.value = nil
     }
     
-    func encode(to encoder: Encoder) throws {/* not implemented */}
+    public func encode(to encoder: Encoder) throws {/* not implemented */}
 }
 
 public extension KeyedEncodingContainerProtocol {
@@ -727,6 +727,14 @@ where Transform: InternalEncoderTransform, Value == Transform.Value {
     }
 }
 
+public extension UnkeyedEncodingContainer {
+    mutating func encode<T: Encodable>(_ value: T, withTag tag: UInt64) throws {
+        let tag = TagContainer(tag: tag, value: value)
+        try encode(tag)
+    }
+}
+
+
 private struct ValueUnkeyedEncodingContainer<Value, Transform>: UnkeyedEncodingContainer
   where Transform: InternalEncoderTransform, Value == Transform.Value {
   // MARK: Properties
@@ -788,11 +796,29 @@ private struct ValueUnkeyedEncodingContainer<Value, Transform>: UnkeyedEncodingC
     container.append(try encoder.box(value))
   }
 
-  public mutating func encode<T: Encodable>(_ value: T) throws {
-    encoder.codingPath.append(AnyCodingKey(index: count))
-    defer { self.encoder.codingPath.removeLast() }
-    container.append(try encoder.box(value))
-  }
+    public mutating func encode<T: Encodable>(_ value: T) throws {
+        if let value = value as? TagContainer {
+            try encode(value)
+        } else {
+            encoder.codingPath.append(AnyCodingKey(index: count))
+            defer { self.encoder.codingPath.removeLast() }
+            container.append(try encoder.box(value))
+        }
+    }
+    
+    public mutating func encode(_ value: TagContainer) throws {
+        guard
+            let tag = value.tag,
+            let value = value.value
+        else {
+            let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "value not castable to Bool")
+            throw EncodingError.invalidValue(value, context)
+        }
+        
+        encoder.codingPath.append(AnyCodingKey(index: count))
+        defer { self.encoder.codingPath.removeLast() }
+        container.append(try encoder.box(value, withTag: tag))
+    }
 
   public mutating func nestedContainer<NestedKey>(
     keyedBy keyType: NestedKey
@@ -827,6 +853,13 @@ private struct ValueUnkeyedEncodingContainer<Value, Transform>: UnkeyedEncodingC
   public mutating func superEncoder() -> Encoder {
     return ValueReferencingEncoder(referencing: encoder, at: container.count, wrapping: container)
   }
+}
+
+public extension SingleValueEncodingContainer {
+    mutating func encode<T: Encodable>(_ value: T, withTag tag: UInt64) throws {
+        let tag = TagContainer(tag: tag, value: value)
+        try encode(tag)
+    }
 }
 
 extension InternalValueEncoder: SingleValueEncodingContainer {
@@ -915,9 +948,26 @@ extension InternalValueEncoder: SingleValueEncodingContainer {
   }
 
   public func encode<T: Encodable>(_ value: T) throws {
-    assertCanEncodeNewValue()
-    try storage.push(container: box(value))
+      if let value = value as? TagContainer {
+          try encode(value)
+      } else {
+          assertCanEncodeNewValue()
+          try storage.push(container: box(value))
+      }
   }
+    
+    public func encode(_ value: TagContainer) throws {
+        guard
+            let tag = value.tag,
+            let value = value.value
+        else {
+            let context = EncodingError.Context(codingPath: [], debugDescription: "value not castable to Bool")
+            throw EncodingError.invalidValue(value, context)
+        }
+        
+        assertCanEncodeNewValue()
+        try storage.push(container: box(value, withTag: tag))
+    }
 }
 
 // MARK: - Concrete Value Representations
