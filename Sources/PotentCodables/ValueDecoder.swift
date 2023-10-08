@@ -1463,6 +1463,28 @@ private extension InternalValueDecoder {
         return result as? T
     }
 
+    func unbox<T>(_ value: Value, as type: ValueIntDictionaryDecodableMarker.Type) throws -> T? {
+        guard !value.isNull else { return nil }
+
+        var result = [AnyHashable: Any]()
+        guard let dict = try Transform.valueToKeyedValues(value, decoder: self) else {
+            throw DecodingError.typeMismatch(at: codingPath, expectation: type, reality: value)
+        }
+        let elementType = type.elementType
+        for (key, value) in dict {
+            if let key = key as? String {
+                codingPath.append(AnyCodingKey(stringValue: key, intValue: nil))
+            } else if let key = key as? Int {
+                codingPath.append(AnyCodingKey(stringValue: String(key), intValue: key))
+            }
+            defer { self.codingPath.removeLast() }
+
+            result[key] = try unbox_(value, as: elementType)
+        }
+
+        return result as? T
+    }
+
     func unbox<T: Decodable>(_ value: Value, as type: T.Type) throws -> T? {
         return try unbox_(value, as: type) as? T
     }
@@ -1499,6 +1521,8 @@ private extension InternalValueDecoder {
         }
         else if let stringKeyedDictType = type as? ValueStringDictionaryDecodableMarker.Type {
             return try unbox(value, as: stringKeyedDictType)
+        } else if let intKeyedDictType = type as? ValueIntDictionaryDecodableMarker.Type {
+            return try unbox(value, as: intKeyedDictType)
         }
         else {
             return try Transform.unbox(value, otherType: type, decoder: self)
@@ -1517,6 +1541,14 @@ public protocol ValueStringDictionaryDecodableMarker {
 }
 
 extension Dictionary: ValueStringDictionaryDecodableMarker where Key == String, Value: Decodable {
+    public static var elementType: Decodable.Type { return Value.self }
+}
+
+public protocol ValueIntDictionaryDecodableMarker {
+    static var elementType: Decodable.Type { get }
+}
+
+extension Dictionary: ValueIntDictionaryDecodableMarker where Key == Int, Value: Decodable {
     public static var elementType: Decodable.Type { return Value.self }
 }
 
