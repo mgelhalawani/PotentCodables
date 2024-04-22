@@ -22,7 +22,7 @@ let package = Package(
   products: [
     .library(
       name: "PotentCodables",
-      targets: ["PotentCodables", "PotentJSON", "PotentCBOR", "PotentASN1", "PotentYAML", "Cfyaml"]
+      targets: ["PotentCodables", "PotentJSON", "PotentCBOR", "PotentASN1"]
     ),
   ],
   dependencies: [
@@ -45,22 +45,9 @@ let package = Package(
       name: "PotentASN1",
       dependencies: ["PotentCodables", "BigInt", "OrderedDictionary"]
     ),
-    .target(    
-      name: "Cfyaml",
-      cSettings: [
-        .headerSearchPath("config"),
-        .headerSearchPath("lib"),
-        .headerSearchPath("valgrind"),
-        .define("HAVE_CONFIG_H")
-      ]
-    ),
-    .target(
-      name: "PotentYAML",
-      dependencies: ["Cfyaml", "PotentCodables"]
-    ),
     .testTarget(
       name: "PotentCodablesTests",
-      dependencies: ["PotentCodables", "PotentJSON", "PotentCBOR", "PotentASN1", "PotentYAML"],
+      dependencies: ["PotentCodables", "PotentJSON", "PotentCBOR", "PotentASN1"],
       path: "./Tests"
     )
   ]
